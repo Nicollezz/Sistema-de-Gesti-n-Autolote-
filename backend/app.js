@@ -47,8 +47,13 @@ app.get('/api/divisas', async (req, res) => {
 const vehiculosRoutes = require('./routes/vehiculosRoutes');
 app.use('/', vehiculosRoutes);
 
+const clientesRoutes = require('./routes/clientesRoutes');
+const consultasClientesRoutes = require('./routes/consultasClientesRoutes');
+const ventasRoutes = require('./routes/ventasRoutes');
 
-
+app.use('/', clientesRoutes);
+app.use('/', consultasClientesRoutes);
+app.use('/', ventasRoutes);
 app.use('/', AuthRoute);
 app.use('/', UsuariosRoutes);
 
