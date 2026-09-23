@@ -79,4 +79,26 @@ router.put('/vehiculos/:id', authMiddleware, (req, res) => {
         return res.status(200).json({status: 200, message: "Vehículo actualizado exitosamente"});
     });
 });
+
+// Endpoint para ELIMINAR
+router.delete('/vehiculos/:id', authMiddleware, (req, res) => {
+    // Extraemos el ID de la URL
+    const { id } = req.params;
+
+    // Sentencia SQL para eliminar el registro
+    const sql = 'DELETE FROM vehiculos WHERE id = ?';
+
+    pool.query(sql, [id], (err, results) => {
+        if(err){
+            return res.status(500).json({status: 500, message: "Error al eliminar el vehículo", error: err});
+        }
+        
+        // Verificamos si el vehículo existía antes de intentar borrarlo
+        if(results.affectedRows === 0){
+            return res.status(404).json({status: 404, message: "Vehículo no encontrado"});
+        }
+
+        return res.status(200).json({status: 200, message: "Vehículo eliminado exitosamente"});
+    });
+});
 module.exports = router; 
