@@ -1,0 +1,31 @@
+<section class="external-products">
+  <header class="external-products__header">
+    <div>
+      <h2>Productos de API de terceros</h2>
+      <p>Consumo seguro del servicio configurado en el backend con autenticacion JWT.</p>
+    </div>
+    <button type="button" (click)="loadProducts()">Recargar</button>
+  </header>
+
+  <p *ngIf="isLoading" class="external-products__state">Cargando productos...</p>
+  <p *ngIf="errorMessage" class="external-products__error">{{ errorMessage }}</p>
+
+  <div *ngIf="!isLoading && products.length > 0" class="external-products__grid">
+    <article *ngFor="let product of products" class="product-card">
+      <img [src]="product.image" [alt]="product.title" class="product-card__image">
+      <div class="product-card__content">
+        <span class="product-card__category">{{ product.category }}</span>
+        <h3>{{ product.title }}</h3>
+        <p class="product-card__description">{{ product.description }}</p>
+        <div class="product-card__meta">
+          <strong>${{ product.price }}</strong>
+          <span *ngIf="product.rating">Calificacion: {{ product.rating.rate }} ({{ product.rating.count }})</span>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <p *ngIf="!isLoading && !errorMessage && products.length === 0" class="external-products__state">
+    No hay productos disponibles para mostrar.
+  </p>
+</section>
