@@ -44,4 +44,39 @@ router.get('/vehiculos', authMiddleware, (req, res) => {
     });
 });
 
-module.exports = router;
+// Endpoint para ACTUALIZAR
+router.put('/vehiculos/:id', authMiddleware, (req, res) => {
+    // Extraemos el ID de la URL
+    const { id } = req.params;
+    // Extraemos los nuevos datos del Body
+    const vehiculo = req.body;
+
+    // Sentencia SQL para actualizar los campos
+    const sql = `UPDATE vehiculos 
+                 SET marca = ?, modelo = ?, anio = ?, precio = ?, estado_disponibilidad = ?, image_url = ? 
+                 WHERE id = ?`;
+
+    const valores = [
+        vehiculo.marca, 
+        vehiculo.modelo, 
+        vehiculo.anio, 
+        vehiculo.precio, 
+        vehiculo.estado_disponibilidad, 
+        vehiculo.image_url || null, 
+        id
+    ];
+
+    pool.query(sql, valores, (err, results) => {
+        if(err){
+            return res.status(500).json({status: 500, message: "Error al actualizar el vehículo", error: err});
+        }
+        
+        // Verificamos si el vehículo con ese ID realmente existe en la base de datos
+        if(results.affectedRows === 0){
+            return res.status(404).json({status: 404, message: "Vehículo no encontrado"});
+        }
+
+        return res.status(200).json({status: 200, message: "Vehículo actualizado exitosamente"});
+    });
+});
+module.exports = router; 
