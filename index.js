@@ -7,7 +7,6 @@ const pool = require('./src/config/db');
 const UsuariosRoutes = require('./src/routes/UsuariosRouts.js');
 const AuthRoute = require('./src/routes/AuthRoute.js'); 
 const VehiculosRoutes = require('./src/routes/vehiculosRouters.js');
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 

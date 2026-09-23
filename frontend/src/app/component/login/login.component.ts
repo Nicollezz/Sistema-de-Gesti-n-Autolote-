@@ -21,8 +21,8 @@ export class LoginComponent {
 
   login() {
     const credentials = {
-      Username: this.username,
-      Password: this.contrasenia
+      correo: this.username,
+      contrasena: this.contrasenia
     };
     this.errorMessage = '';
     this.authService.login(credentials).subscribe({
