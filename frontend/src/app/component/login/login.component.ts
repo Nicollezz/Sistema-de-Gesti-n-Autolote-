@@ -1,48 +1,42 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth.service'; // ng generate service services/auth
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router'; // <-- 1. Importar RouterLink aquí
+import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink], // <-- 2. Agregar RouterLink en los imports
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styles: [] 
 })
 export class LoginComponent {
   username: string = '';
-  contrasenia: string = '';
-  errorMessage: string = '';
+  contrasena: string = ''; 
+  errorMessage: string = ''; 
 
-  constructor(private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
-  login() {
-    const credentials = {
-      Username: this.username,
-      Password: this.contrasenia
+  login(): void {
+    this.errorMessage = ''; 
+    
+    // Corregido: Las propiedades ahora coinciden exactamente con lo que espera el backend (correo y contrasena)
+    const credentials = { 
+      correo: this.username, 
+      contrasena: this.contrasena 
     };
-    this.errorMessage = '';
-    this.authService.login(credentials).subscribe({
-      
-      next: (response) => {
-        console.log('Login exitoso:', response);
-        localStorage.setItem('token', response.data);
-        this.router.navigate(['/home']);
+    
+    this.authService.login(credentials as any).subscribe({
+      next: (response: any) => {
+        localStorage.setItem('token', response.token || response.data?.token);
+        this.router.navigate(['/vehiculos']);
       },
-      error: (error) => {
-        console.error('Error de login:', error);
-        
-        // Detecta si viene un mensaje personalizado del backend
-        if (error.status === 401) {
-          this.errorMessage = error.error?.message || 'Credenciales incorrectas.';
-        } else {
-          this.errorMessage = 'Ocurrió un error inesperado. Intenta de nuevo.';
-        }
+      error: (err: any) => {
+        console.error('Error al iniciar sesión:', err);
+        this.errorMessage = 'Usuario o contraseña incorrectos';
       }
-
     });
   }
 }

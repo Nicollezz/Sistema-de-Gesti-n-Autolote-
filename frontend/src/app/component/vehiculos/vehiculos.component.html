@@ -1,4 +1,38 @@
-<ul *ngFor="let vehiculo of vehiculos">
-    <li>{{ vehiculo['codigo'] }}</li>
-    <li>{{ vehiculo['marca'] }}</li>
-</ul>
+<div class="max-w-6xl mx-auto p-6">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">Gestión de Inventario de Vehículos</h2>
+
+  <!-- Alertas de carga o error -->
+  <div *ngIf="cargando" class="text-blue-600 font-semibold">Cargando vehículos...</div>
+  <div *ngIf="errorMensaje" class="bg-red-100 text-red-700 p-3 rounded mb-4">{{ errorMensaje }}</div>
+
+  <!-- Formulario simple para agregar vehículos -->
+  <div class="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
+    <h3 class="text-xl font-semibold mb-4 text-gray-700">Registrar Nuevo Vehículo</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <input type="text" [(ngModel)]="nuevoVehiculo.marca" placeholder="Marca" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <input type="text" [(ngModel)]="nuevoVehiculo.modelo" placeholder="Modelo" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <input type="number" [(ngModel)]="nuevoVehiculo.anio" placeholder="Año" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <input type="number" [(ngModel)]="nuevoVehiculo.precio" placeholder="Precio ($)" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <input type="text" [(ngModel)]="nuevoVehiculo.estado_disponibilidad" placeholder="Estado (Ej. Disponible)" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <input type="text" [(ngModel)]="nuevoVehiculo.imagen_url" placeholder="URL de la imagen" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+    <button (click)="guardarVehiculo()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Guardar Vehículo</button>
+  </div>
+
+  <!-- Listado en Tarjetas (Grid) -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6" *ngIf="!cargando">
+    <div *ngFor="let v of vehiculos" class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+      <img [src]="v.imagen_url || 'https://via.placeholder.com/300x150'" alt="Vehículo" class="w-full h-48 object-cover">
+      <div class="p-4">
+        <h4 class="text-xl font-bold text-gray-800">{{ v.marca }} {{ v.modelo }}</h4>
+        <p class="text-gray-600"><strong>Año:</strong> {{ v.anio }}</p>
+        <p class="text-blue-600 font-semibold text-lg"><strong>Precio:</strong> ${{ v.precio }}</p>
+        <p class="text-sm text-gray-500 mt-1"><strong>Estado:</strong> <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">{{ v.estado_disponibilidad }}</span></p>
+        
+        <div class="mt-4 flex justify-end">
+          <button (click)="eliminar(v.id)" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

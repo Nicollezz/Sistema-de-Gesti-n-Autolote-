@@ -1,244 +1,56 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/db');
-
-// GET - Obtener todos los clientes
-router.get('/api/clientes', (req, res) => {
-    const sql = `
-        SELECT 
-            id,
-            nombre,
-            apellido,
-            correo_electronico,
-            telefono,
-            direccion,
-            created_at
-        FROM clientes
-        ORDER BY id DESC
-    `;
-
-    pool.query(sql, (error, resultados) => {
-        if (error) {
-            console.error('Error al obtener clientes:', error);
-            return res.status(500).json({
-                status: 500,
-                message: 'Error al obtener los clientes'
-            });
-        }
-
-        res.status(200).json({
-            status: 200,
-            message: 'Clientes obtenidos correctamente',
-            data: resultados
-        });
+const db = require('../config/db');
+const verificarToken = require('../middleware/AuthMiddleware');
+// 1. Obtener todos los clientes
+router.get('/', verificarToken, (req, res) => {
+    const query = 'SELECT * FROM clientes';
+    db.query(query, (err, results) => {
+        if (err) return res.status(500).json({ error: 'Error al obtener los clientes' });
+        res.json(results);
     });
 });
 
-// GET - Obtener un cliente por ID
-router.get('/api/clientes/:id', (req, res) => {
-    const { id } = req.params;
-
-    const sql = `
-        SELECT 
-            id,
-            nombre,
-            apellido,
-            correo_electronico,
-            telefono,
-            direccion,
-            created_at
-        FROM clientes
-        WHERE id = ?
-    `;
-
-    pool.query(sql, [id], (error, resultados) => {
-        if (error) {
-            console.error('Error al obtener el cliente:', error);
-            return res.status(500).json({
-                status: 500,
-                message: 'Error al obtener el cliente'
-            });
-        }
-
-        if (resultados.length === 0) {
-            return res.status(404).json({
-                status: 404,
-                message: 'Cliente no encontrado'
-            });
-        }
-
-        res.status(200).json({
-            status: 200,
-            message: 'Cliente obtenido correctamente',
-            data: resultados[0]
-        });
+// 2. Registrar un nuevo cliente
+router.post('/', verificarToken, (req, res) => {
+    const { nombre, apellido, correo, telefono, direccion } = req.body;
+    const query = 'INSERT INTO clientes (nombre, apellido, correo, telefono, direccion) VALUES (?, ?, ?, ?, ?)';
+    
+    db.query(query, [nombre, apellido, correo, telefono, direccion], (err, result) => {
+        if (err) return res.status(500).json({ error: 'Error al registrar el cliente' });
+        res.status(201).json({ message: 'Cliente registrado exitosamente', id: result.insertId });
     });
 });
 
-// POST - Crear cliente
-router.post('/api/clientes', (req, res) => {
-    const {
-        nombre,
-        apellido,
-        correo_electronico,
-        telefono,
-        direccion
-    } = req.body;
-
-    if (!nombre || !apellido || !correo_electronico) {
-        return res.status(400).json({
-            status: 400,
-            message: 'Nombre, apellido y correo electrónico son obligatorios'
-        });
-    }
-
-    const sql = `
-        INSERT INTO clientes
-        (nombre, apellido, correo_electronico, telefono, direccion)
-        VALUES (?, ?, ?, ?, ?)
-    `;
-
-    pool.query(
-        sql,
-        [nombre, apellido, correo_electronico, telefono || null, direccion || null],
-        (error, resultado) => {
-            if (error) {
-                console.error('Error al crear cliente:', error);
-
-                if (error.code === 'ER_DUP_ENTRY') {
-                    return res.status(409).json({
-                        status: 409,
-                        message: 'El correo electrónico ya está registrado'
-                    });
-                }
-
-                return res.status(500).json({
-                    status: 500,
-                    message: 'Error al crear el cliente'
-                });
-            }
-
-            res.status(201).json({
-                status: 201,
-                message: 'Cliente creado correctamente',
-                data: {
-                    id: resultado.insertId,
-                    nombre,
-                    apellido,
-                    correo_electronico,
-                    telefono: telefono || null,
-                    direccion: direccion || null
-                }
-            });
-        }
-    );
+// 3. Eliminar cliente
+router.delete('/:id', verificarToken, (req, res) => {
+    const { id } = req.params;
+    const query = 'DELETE FROM clientes WHERE id = ?';
+    db.query(query, [id], (err, result) => {
+        if (err) return res.status(500).json({ error: 'Error al eliminar el cliente' });
+        res.json({ message: 'Cliente eliminado correctamente' });
+    });
 });
 
-// PUT - Actualizar cliente
-router.put('/api/clientes/:id', (req, res) => {
+// 4. Obtener el historial de consultas de un cliente específico
+router.get('/:id/consultas', verificarToken, (req, res) => {
     const { id } = req.params;
-    const {
-        nombre,
-        apellido,
-        correo_electronico,
-        telefono,
-        direccion
-    } = req.body;
-
-    if (!nombre || !apellido || !correo_electronico) {
-        return res.status(400).json({
-            status: 400,
-            message: 'Nombre, apellido y correo electrónico son obligatorios'
-        });
-    }
-
-    const sql = `
-        UPDATE clientes
-        SET
-            nombre = ?,
-            apellido = ?,
-            correo_electronico = ?,
-            telefono = ?,
-            direccion = ?
-        WHERE id = ?
-    `;
-
-    pool.query(
-        sql,
-        [
-            nombre,
-            apellido,
-            correo_electronico,
-            telefono || null,
-            direccion || null,
-            id
-        ],
-        (error, resultado) => {
-            if (error) {
-                console.error('Error al actualizar cliente:', error);
-
-                if (error.code === 'ER_DUP_ENTRY') {
-                    return res.status(409).json({
-                        status: 409,
-                        message: 'El correo electrónico ya está registrado'
-                    });
-                }
-
-                return res.status(500).json({
-                    status: 500,
-                    message: 'Error al actualizar el cliente'
-                });
-            }
-
-            if (resultado.affectedRows === 0) {
-                return res.status(404).json({
-                    status: 404,
-                    message: 'Cliente no encontrado'
-                });
-            }
-
-            res.status(200).json({
-                status: 200,
-                message: 'Cliente actualizado correctamente'
-            });
-        }
-    );
+    const query = 'SELECT * FROM consultas_clientes WHERE cliente_id = ? ORDER BY fecha DESC';
+    db.query(query, [id], (err, results) => {
+        if (err) return res.status(500).json({ error: 'Error al obtener las consultas' });
+        res.json(results);
+    });
 });
 
-// DELETE - Eliminar cliente
-router.delete('/api/clientes/:id', (req, res) => {
+// 5. Registrar una nueva consulta / prueba de manejo para un cliente
+router.post('/:id/consultas', verificarToken, (req, res) => {
     const { id } = req.params;
-
-    const sql = 'DELETE FROM clientes WHERE id = ?';
-
-    pool.query(sql, [id], (error, resultado) => {
-        if (error) {
-            console.error('Error al eliminar cliente:', error);
-
-            if (error.code === 'ER_ROW_IS_REFERENCED_2') {
-                return res.status(409).json({
-                    status: 409,
-                    message: 'No se puede eliminar el cliente porque tiene registros relacionados'
-                });
-            }
-
-            return res.status(500).json({
-                status: 500,
-                message: 'Error al eliminar el cliente'
-            });
-        }
-
-        if (resultado.affectedRows === 0) {
-            return res.status(404).json({
-                status: 404,
-                message: 'Cliente no encontrado'
-            });
-        }
-
-        res.status(200).json({
-            status: 200,
-            message: 'Cliente eliminado correctamente'
-        });
+    const { mensaje } = req.body;
+    const query = 'INSERT INTO consultas_clientes (cliente_id, mensaje) VALUES (?, ?)';
+    
+    db.query(query, [id, mensaje], (err, result) => {
+        if (err) return res.status(500).json({ error: 'Error al registrar la consulta' });
+        res.status(201).json({ message: 'Consulta registrada exitosamente' });
     });
 });
 
