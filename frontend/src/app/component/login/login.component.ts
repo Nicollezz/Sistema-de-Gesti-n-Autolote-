@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router'; // <-- 1. Importar RouterLink aquí
+import { RouterLink } from '@angular/router'; 
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink], // <-- 2. Agregar RouterLink en los imports
+  imports: [CommonModule, FormsModule, RouterLink], 
   templateUrl: './login.component.html',
   styles: [] 
 })
@@ -22,7 +22,7 @@ export class LoginComponent {
   login(): void {
     this.errorMessage = ''; 
     
-    // Corregido: Las propiedades ahora coinciden exactamente con lo que espera el backend (correo y contrasena)
+   
     const credentials = { 
       correo: this.username, 
       contrasena: this.contrasena 

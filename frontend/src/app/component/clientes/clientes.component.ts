@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ClienteService } from '../../services/cliente.service'; // Ajusta la ruta de tu servicio si es necesario
+import { ClienteService } from '../../services/cliente.service';
 
 @Component({
   selector: 'app-clientes',
@@ -13,77 +13,57 @@ import { ClienteService } from '../../services/cliente.service'; // Ajusta la ru
 export class ClientesComponent implements OnInit {
   clientes: any[] = [];
   
-  // Variables para la gestión de selección y consultas
-  clienteSeleccionado: any = null;
-  consultas: any[] = [];
-
-  // Objeto para el formulario de registro
-  nuevoCliente: any = {
+  nuevoCliente = {
     nombre: '',
     apellido: '',
     correo: '',
-    telefono: ''
+    telefono: '',
+    direccion: ''
   };
 
   constructor(private clienteService: ClienteService) {}
 
   ngOnInit(): void {
-    this.obtenerClientes();
+    this.cargarClientes();
   }
 
-  // Método para obtener la lista de clientes
-  obtenerClientes() {
+  cargarClientes(): void {
     this.clienteService.getClientes().subscribe({
       next: (data) => {
         this.clientes = data;
       },
-      error: (err: any) => {
-        console.error('Error al obtener clientes', err);
+      error: (err) => {
+        console.error('Error al cargar clientes:', err);
       }
     });
   }
 
-  // Método para eliminar cliente
-  eliminarCliente(id: number) {
-    if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
-      this.clienteService.eliminarCliente(id).subscribe({
-        next: () => {
-          console.log('Cliente eliminado con éxito');
-          this.obtenerClientes(); // Recargar la lista
-          if (this.clienteSeleccionado && this.clienteSeleccionado.id === id) {
-            this.clienteSeleccionado = null; // Limpiar selección si se eliminó
-          }
-        },
-        error: (err: any) => {
-          console.error('Error al eliminar cliente', err);
-        }
-      });
+  guardarCliente(): void {
+    if (!this.nuevoCliente.nombre || !this.nuevoCliente.apellido || !this.nuevoCliente.correo) {
+      alert('Por favor complete los campos obligatorios.');
+      return;
     }
-  }
 
-  // Método para ver las consultas del cliente seleccionado
-  verConsultas(cliente: any) {
-    this.clienteSeleccionado = cliente;
-    this.consultas = cliente.consultas || [];
-  }
-
-  // Método para registrar un nuevo cliente
-  registrarCliente() {
-    this.clienteService.crearCliente(this.nuevoCliente).subscribe({
+    this.clienteService.registrarCliente(this.nuevoCliente).subscribe({
       next: (res) => {
-        console.log('Cliente registrado con éxito', res);
-        this.obtenerClientes(); // Recargar la lista de clientes
-        // Limpiar el formulario después de registrar
-        this.nuevoCliente = {
-          nombre: '',
-          apellido: '',
-          correo: '',
-          telefono: ''
-        };
+        alert('Cliente guardado con éxito.');
+        this.cargarClientes(); // Recargar la tabla
+        this.limpiarFormulario();
       },
-      error: (err: any) => {
-        console.error('Error al registrar cliente', err);
+      error: (err) => {
+        console.error('Error al guardar:', err);
+        alert('No se pudo guardar el cliente.');
       }
     });
+  }
+
+  limpiarFormulario(): void {
+    this.nuevoCliente = {
+      nombre: '',
+      apellido: '',
+      correo: '',
+      telefono: '',
+      direccion: ''
+    };
   }
 }

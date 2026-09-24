@@ -24,7 +24,7 @@ onRegister() {
     const userData = {
       nombre: this.nombre,
       correo: this.correo,
-      contrasena: this.password // <-- Cambiado de 'password' a 'contrasena' para que coincida con el servicio
+      contrasena: this.password  
     };
 
     this.errorMessage = '';

@@ -6,34 +6,28 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class VehiculoService {
+  obtenerVehiculos() {
+    throw new Error('Method not implemented.');
+  }
   private apiUrl = 'http://localhost:3000/api/vehiculos';
 
   constructor(private http: HttpClient) {}
 
-  private getHeaders() {
+  private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token') || '';
-    return {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      })
-    };
+    return new HttpHeaders().set('Authorization', `Bearer ${token}`);
   }
 
-  getVehiculos(filtros?: any): Observable<any> {
-    // Puedes pasar parámetros de filtro si deseas
-    return this.http.get(this.apiUrl, this.getHeaders());
+  getVehiculos(): Observable<any> {
+    return this.http.get(this.apiUrl, { headers: this.getHeaders() });
   }
 
-  crearVehiculo(vehiculo: any): Observable<any> {
-    return this.http.post(this.apiUrl, vehiculo, this.getHeaders());
-  }
 
-  actualizarVehiculo(id: number, vehiculo: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, vehiculo, this.getHeaders());
+  registrarVehiculo(vehiculo: any): Observable<any> {
+    return this.http.post(this.apiUrl, vehiculo, { headers: this.getHeaders() });
   }
 
   eliminarVehiculo(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`, this.getHeaders());
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 }

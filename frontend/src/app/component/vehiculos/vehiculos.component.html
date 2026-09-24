@@ -1,38 +1,126 @@
-<div class="max-w-6xl mx-auto p-6">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">Gestión de Inventario de Vehículos</h2>
+<div class="container mx-auto p-6">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+    <h2 class="text-2xl font-bold text-gray-800">Gestión de Inventario de Vehículos</h2>
 
-  <!-- Alertas de carga o error -->
-  <div *ngIf="cargando" class="text-blue-600 font-semibold">Cargando vehículos...</div>
-  <div *ngIf="errorMensaje" class="bg-red-100 text-red-700 p-3 rounded mb-4">{{ errorMensaje }}</div>
-
-  <!-- Formulario simple para agregar vehículos -->
-  <div class="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
-    <h3 class="text-xl font-semibold mb-4 text-gray-700">Registrar Nuevo Vehículo</h3>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <input type="text" [(ngModel)]="nuevoVehiculo.marca" placeholder="Marca" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <input type="text" [(ngModel)]="nuevoVehiculo.modelo" placeholder="Modelo" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <input type="number" [(ngModel)]="nuevoVehiculo.anio" placeholder="Año" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <input type="number" [(ngModel)]="nuevoVehiculo.precio" placeholder="Precio ($)" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <input type="text" [(ngModel)]="nuevoVehiculo.estado_disponibilidad" placeholder="Estado (Ej. Disponible)" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <input type="text" [(ngModel)]="nuevoVehiculo.imagen_url" placeholder="URL de la imagen" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <!-- Selector de Divisas Integrado -->
+    <div class="flex items-center space-x-2 bg-white p-2.5 rounded-lg border border-gray-200 shadow-sm">
+      <span class="text-sm font-semibold text-gray-700">Moneda:</span>
+      <select 
+        [(ngModel)]="monedaSeleccionada" 
+        class="border border-gray-300 rounded-md px-3 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 text-gray-700">
+        <option value="HNL">Lempiras (HNL)</option>
+        <option value="USD">Dólares (USD)</option>
+      </select>
     </div>
-    <button (click)="guardarVehiculo()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Guardar Vehículo</button>
   </div>
 
-  <!-- Listado en Tarjetas (Grid) -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6" *ngIf="!cargando">
-    <div *ngFor="let v of vehiculos" class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-      <img [src]="v.imagen_url || 'https://via.placeholder.com/300x150'" alt="Vehículo" class="w-full h-48 object-cover">
-      <div class="p-4">
-        <h4 class="text-xl font-bold text-gray-800">{{ v.marca }} {{ v.modelo }}</h4>
-        <p class="text-gray-600"><strong>Año:</strong> {{ v.anio }}</p>
-        <p class="text-blue-600 font-semibold text-lg"><strong>Precio:</strong> ${{ v.precio }}</p>
-        <p class="text-sm text-gray-500 mt-1"><strong>Estado:</strong> <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">{{ v.estado_disponibilidad }}</span></p>
-        
-        <div class="mt-4 flex justify-end">
-          <button (click)="eliminar(v.id)" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition">Eliminar</button>
-        </div>
+  <!-- Alerta de Error o Carga -->
+  <div *ngIf="cargando" class="mb-4 p-4 bg-blue-100 text-blue-700 rounded-lg font-medium">Cargando vehículos...</div>
+  <div *ngIf="errorMensaje" class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+    {{ errorMensaje }}
+  </div>
+
+  <!-- Formulario de Registro -->
+  <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+    <h3 class="text-lg font-semibold mb-4 text-gray-700">Registrar Nuevo Vehículo</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <!-- Marca -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Marca</label>
+        <input type="text" [(ngModel)]="nuevoVehiculo.marca" name="marca" placeholder="Ej. Toyota" class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300">
       </div>
+
+      <!-- Modelo -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Modelo</label>
+        <input type="text" [(ngModel)]="nuevoVehiculo.modelo" name="modelo" placeholder="Ej. Corolla" class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300">
+      </div>
+
+      <!-- Año -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Año</label>
+        <input type="number" [(ngModel)]="nuevoVehiculo.anio" name="anio" placeholder="Ej. 2026" class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- Precio -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Precio</label>
+        <input type="number" [(ngModel)]="nuevoVehiculo.precio" name="precio" placeholder="Ej. 12000" class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300">
+      </div>
+
+      <!-- Estado de Disponibilidad -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Estado</label>
+        <select [(ngModel)]="nuevoVehiculo.estado_disponibilidad" name="estado_disponibilidad" class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300">
+          <option value="" disabled selected>Seleccione estado</option>
+          <option value="disponible">disponible</option>
+          <option value="vendido">vendido</option>
+          <option value="reservado">reservado</option>
+        </select>
+      </div>
+
+      <!-- URL de la imagen -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">URL de la imagen</label>
+        <input type="text" [(ngModel)]="nuevoVehiculo.imagen_url" name="imagen_url" placeholder="https://..." class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300">
+      </div>
+    </div>
+
+    <button (click)="guardarVehiculo()" class="w-full bg-blue-600 text-white font-semibold p-3 rounded-lg hover:bg-blue-700 transition">
+      Guardar Vehículo
+    </button>
+  </div>
+
+  <!-- Listado / Tabla de Vehículos -->
+  <div class="bg-white shadow-md rounded-lg p-6">
+    <h3 class="text-lg font-semibold mb-4 text-gray-700">Vehículos Registrados</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-100 border-b text-gray-600 text-sm">
+            <th class="py-3 px-4">ID</th>
+            <th class="py-3 px-4">Marca</th>
+            <th class="py-3 px-4">Modelo</th>
+            <th class="py-3 px-4">Año</th>
+            <th class="py-3 px-4">Precio</th>
+            <th class="py-3 px-4">Estado</th>
+            <th class="py-3 px-4">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of vehiculos" class="border-b hover:bg-gray-50 text-sm">
+            <td class="py-3 px-4">{{ v.id }}</td>
+            <td class="py-3 px-4 font-semibold text-gray-800">{{ v.marca }}</td>
+            <td class="py-3 px-4">{{ v.modelo }}</td>
+            <td class="py-3 px-4">{{ v.anio }}</td>
+            <!-- Precio dinámico según la divisa seleccionada -->
+            <td class="py-3 px-4 font-medium text-emerald-600">
+              <span *ngIf="monedaSeleccionada === 'HNL'">L. {{ v.precio }}</span>
+              <span *ngIf="monedaSeleccionada === 'USD'">$ {{ (v.precio / 25.5).toFixed(2) }}</span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="px-2 py-1 rounded text-xs font-semibold"
+                [class.bg-green-100]="v.estado_disponibilidad === 'disponible'"
+                [class.text-green-700]="v.estado_disponibilidad === 'disponible'"
+                [class.bg-red-100]="v.estado_disponibilidad === 'vendido'"
+                [class.text-red-700]="v.estado_disponibilidad === 'vendido'"
+                [class.bg-yellow-100]="v.estado_disponibilidad === 'reservado'"
+                [class.text-yellow-700]="v.estado_disponibilidad === 'reservado'">
+                {{ v.estado_disponibilidad }}
+              </span>
+            </td>
+            <td class="py-3 px-4">
+              <button (click)="eliminar(v.id)" class="text-red-600 hover:text-red-800 font-medium">Eliminar</button>
+            </td>
+          </tr>
+          <tr *ngIf="vehiculos.length === 0">
+            <td colspan="7" class="text-center py-4 text-gray-400">No hay vehículos registrados.</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

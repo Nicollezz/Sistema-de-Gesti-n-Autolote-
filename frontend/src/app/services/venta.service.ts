@@ -6,8 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class VentaService {
-  private apiUrl = 'http://localhost:3000/ventas';
-
+  private apiUrl = 'http://localhost:3000/api/ventas'; 
   constructor(private http: HttpClient) {}
 
   private getHeaders(): HttpHeaders {

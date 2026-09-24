@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class DivisaService {
-  // Puedes usar una API pública gratuita de tasas de cambio
+ 
   private apiUrl = 'https://open.er-api.com/v6/latest/USD';
 
   constructor(private http: HttpClient) {}

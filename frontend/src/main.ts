@@ -1,4 +1,4 @@
-// @ts-ignore Zone.js is imported for its runtime side effects.
+
 import 'zone.js';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
