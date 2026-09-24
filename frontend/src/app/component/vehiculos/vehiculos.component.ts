@@ -1,51 +1,82 @@
-import { Component, OnInit  } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { UserService } from '../../services/user.service';
-
-interface Vehiculo {
-  [key: string]: unknown;
-}
-
-interface VehiculosResponse {
-  results: Vehiculo[];
-}
-
-interface VehiculosError {
-  status: number;
-  error?: {
-    message?: string;
-  };
-}
+import { FormsModule } from '@angular/forms';
+import { VehiculoService } from '../../services/vehiculo.service';
 
 @Component({
   selector: 'app-vehiculos',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './vehiculos.component.html',
-  styleUrl: './vehiculos.component.scss'
+  styleUrls: ['./vehiculos.component.css']
 })
-export class VehiculosComponent implements OnInit{
-  vehiculos: Vehiculo[] = [];
-  errorMessage: string = '';
-  constructor(private usersService: UserService) {}
-  ngOnInit() {
-    this.loadVehiculos();
+export class VehiculosComponent implements OnInit {
+  vehiculos: any[] = [];
+  cargando: boolean = false;
+  errorMensaje: string = '';
+  monedaSeleccionada: string = 'HNL'; // <-- Variable añadida para el control de divisas
+
+  nuevoVehiculo = {
+    marca: '',
+    modelo: '',
+    anio: '',
+    precio: '',
+    estado_disponibilidad: '',
+    imagen_url: ''
+  };
+
+  constructor(private vehiculoService: VehiculoService) {}
+
+  ngOnInit(): void {
+    this.obtenerVehiculos();
   }
 
-  loadVehiculos(){
-    this.errorMessage = '';
-    (this.usersService as any).getVehiculos().subscribe({
-      next: (data: VehiculosResponse) => {
-        this.vehiculos = data.results;
+  obtenerVehiculos() {
+    this.cargando = true;
+    this.errorMensaje = '';
+    this.vehiculoService.getVehiculos().subscribe({
+      next: (data: any) => {
+        this.vehiculos = data;
+        this.cargando = false;
       },
-      error: (error: VehiculosError) => {
-        console.error('Error al obtener usuarios:', error);
+      error: (err: any) => {
+        console.error('Error al cargar vehículos:', err);
+        this.errorMensaje = 'No se pudieron cargar los vehículos.';
+        this.cargando = false;
+      }
+    });
+  }
 
-        if (error.status === 401) {
-          this.errorMessage = error.error?.message || 'Credenciales incorrectas.';
-        } else {
-          this.errorMessage = 'Ocurrió un error inesperado. Intenta de nuevo.';
-        }
+  guardarVehiculo() {
+    this.errorMensaje = '';
+    this.vehiculoService.registrarVehiculo(this.nuevoVehiculo).subscribe({
+      next: (res: any) => {
+        console.log('Vehículo guardado', res);
+        this.obtenerVehiculos();
+        this.nuevoVehiculo = {
+          marca: '',
+          modelo: '',
+          anio: '',
+          precio: '',
+          estado_disponibilidad: '',
+          imagen_url: ''
+        };
+      },
+      error: (err: any) => {
+        console.error('Error al registrar:', err);
+        this.errorMensaje = 'Error al registrar el vehículo.';
+      }
+    });
+  }
 
+  eliminar(id: number) {
+    this.vehiculoService.eliminarVehiculo(id).subscribe({
+      next: () => {
+        this.obtenerVehiculos();
+      },
+      error: (err: any) => {
+        console.error('Error al eliminar:', err);
+        this.errorMensaje = 'No se pudo eliminar el vehículo.';
       }
     });
   }

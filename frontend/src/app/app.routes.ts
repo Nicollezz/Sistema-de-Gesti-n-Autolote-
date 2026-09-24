@@ -1,19 +1,16 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './component/login/login.component';
-import { UsersComponent } from './component/users/users.component';
-import { HomeComponent } from './component/home/home.component';
-import { ProductComponent } from './component/product/product.component';
+import { RegisterComponent } from './component/register/register.component';
 import { VehiculosComponent } from './component/vehiculos/vehiculos.component';
-import {FabricanteComponent} from './component/fabricante/fabricante.component'
-import { ExternalProductsComponent } from './component/external-products/external-products.component';
+import { ClientesComponent } from './component/clientes/clientes.component';
+import { VentasComponent } from './component/ventas/ventas.component';
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'login', pathMatch: 'full' },
-    { path: 'login', component: LoginComponent },
-    { path: 'users', component: UsersComponent },
-    { path: 'home', component: HomeComponent },
-    {path:'fabricante', component: FabricanteComponent},
-    { path: 'product', component: ProductComponent },
-    {path:'vehiculos', component:VehiculosComponent},
-    { path: 'external-products', component: ExternalProductsComponent }
-  ];
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: 'vehiculos', component: VehiculosComponent },
+  { path: 'clientes', component: ClientesComponent },
+  { path: 'ventas', component: VentasComponent },
+  { path: '**', redirectTo: 'login' }
+];
